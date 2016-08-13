@@ -23,6 +23,9 @@ public abstract class Sprite {
 	public double getYPosition(){return y;}
 	public void setXPosition(double v){x = v;}
 	public void setYPosition(double v){y = v;}
+	public double getWidth(){return width;}
+	public double getHeight(){return height;}
+	
 	
 	public void draw(GraphicsContext gc){
 		

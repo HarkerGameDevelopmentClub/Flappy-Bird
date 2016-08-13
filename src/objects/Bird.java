@@ -2,7 +2,7 @@ package objects;
 
 import javafx.scene.canvas.GraphicsContext;
 
-public class Bird extends Sprite {
+public class Bird extends SolidSprite {
 	
 	private double velX = 0;
 	private double velY = 0;
