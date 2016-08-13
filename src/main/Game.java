@@ -1,7 +1,6 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,7 +52,7 @@ public class Game {
 		sprites.add(new Background(0, 0, main.WIDTH, main.HEIGHT, "background.png"));
 		sprites.add(new Bird(200, main.HEIGHT / 2.0 - 25, 50, 50, "bird.png"));
 
-		SolidSprite pipe = new SolidSprite(1000, 0, 100, 300, "green.png");
+		/*SolidSprite pipe = new SolidSprite(1000, 0, 100, 300, "green.png");
 		sprites.add(pipe);
 		scoringPipes.add(pipe);
 		sprites.add(new SolidSprite(1000, main.HEIGHT - 300, 100, 300, "green.png"));
@@ -63,9 +62,23 @@ public class Game {
 		scoringPipes.add(pipe);
 		sprites.add(new SolidSprite(1500, main.HEIGHT - 200, 100, 200, "green.png"));
 		
-		sprites.add(new SolidSprite(3000, 0, 100, main.HEIGHT, "green.png"));
+		sprites.add(new SolidSprite(3000, 0, 100, main.HEIGHT, "green.png"));*/
+		
+		this.addColumn(1000, 300, 480);
+		this.addColumn(1500, 600, 280);
+		this.addColumn(2000, 100, 200);
+		//this.addColumn(3000, main.HEIGHT / 2, 0);
 		
 		running = true;
+		
+	}
+	
+	private void addColumn(double gapX, double gapY, double gapHeight){
+		
+		SolidSprite pipe = new SolidSprite(gapX, 0, 100, gapY, "green.png");
+		sprites.add(pipe);
+		scoringPipes.add(pipe);
+		sprites.add(new SolidSprite(gapX, gapY + gapHeight , 100, main.HEIGHT - gapY - gapHeight, "green.png"));
 		
 	}
 	
@@ -98,11 +111,11 @@ public class Game {
 					bird.setVelocityY(JUMP_SPEED);
 				
 				bird.setYPosition(bird.getYPosition() - bird.getVelocityY());
-			}
-		
-			if(sprite.getYPosition() < 0 || sprite.getYPosition() > main.HEIGHT){
-				this.stop();
-				return;
+				
+				if(bird.getYPosition() < 0 || bird.getYPosition() > main.HEIGHT){
+					this.stop();
+					return;
+				}
 			}
 		}
 			
@@ -129,6 +142,21 @@ public class Game {
 						scoringPipes.remove(j);
 					}
 				}
+			}
+		}
+		
+		if(scoringPipes.size() > 0){
+			SolidSprite lastPipe = scoringPipes.get(scoringPipes.size() - 1);
+			if(lastPipe.getXPosition() + lastPipe.getWidth() + SPEED >= main.WIDTH && lastPipe.getXPosition() + lastPipe.getWidth() < main.WIDTH){
+				double height = 150 + Math.random() * 300;
+				this.addColumn(lastPipe.getXPosition() + lastPipe.getWidth() + 200 + Math.random() * 400, Math.random() * (main.HEIGHT - height), height);
+			}
+		}
+		
+		if(sprites.size() >= 4){
+			if(sprites.get(2).getXPosition() + sprites.get(2).getWidth() <= 0){
+				sprites.remove(2);
+				sprites.remove(2);
 			}
 		}
 	}
