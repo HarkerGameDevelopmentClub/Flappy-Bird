@@ -9,10 +9,12 @@ import objects.Background;
 import objects.Bird;
 import objects.SolidSprite;
 import objects.Sprite;
+import objects.TileSprite;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.image.Image;
 import listeners.KeyboardListener;
 
 public class Game {
@@ -24,8 +26,8 @@ public class Game {
 	
 	double SPEED = 2; //  120 pixels a second
 	double GRAVITY = 0.25;
-	double JUMP_INTERVAL = 60;
-	double JUMP_SPEED = 10;
+	double JUMP_INTERVAL = 0;
+	double JUMP_SPEED = 7.5;
 	
 	boolean running = true;
 	
@@ -74,11 +76,10 @@ public class Game {
 	}
 	
 	private void addColumn(double gapX, double gapY, double gapHeight){
-		
-		SolidSprite pipe = new SolidSprite(gapX, 0, 100, gapY, "green.png");
+		TileSprite pipe = new TileSprite(gapX, 0, 100, gapY, "green.png");
 		sprites.add(pipe);
 		scoringPipes.add(pipe);
-		sprites.add(new SolidSprite(gapX, gapY + gapHeight , 100, main.HEIGHT - gapY - gapHeight, "green.png"));
+		sprites.add(new TileSprite(gapX, gapY + gapHeight , 100, main.HEIGHT - gapY - gapHeight, "green.png"));
 		
 	}
 	
@@ -109,7 +110,11 @@ public class Game {
 				
 				if(jump)
 					bird.setVelocityY(JUMP_SPEED);
-				
+
+				if (bird.getVelocityY() > 0)
+					bird.setImage("birdup.png");
+				else
+					bird.setImage("bird.png");				
 				bird.setYPosition(bird.getYPosition() - bird.getVelocityY());
 				
 				if(bird.getYPosition() < 0 || bird.getYPosition() > main.HEIGHT){
@@ -168,7 +173,7 @@ public class Game {
 	private void stop(){
 		running = false;
 		
-		timeUntilRestart = 3;
+		timeUntilRestart = 10;
 		
 		new Timer().schedule(new TimerTask(){
 			@Override
@@ -184,7 +189,7 @@ public class Game {
 				}
 			}
 				
-		}, 1000, 1000);
+		}, 100, 100);
 	}
 	
 	public void draw(GraphicsContext gc){
@@ -198,7 +203,7 @@ public class Game {
         gc.setFont(Font.font("Comic Sans", FontWeight.BOLD, 48));
         
 		if(!running)
-			gc.fillText("Nope. " + timeUntilRestart, main.WIDTH/2-96, main.HEIGHT/2);
+			gc.fillText(""+timeUntilRestart, main.WIDTH/2-96, main.HEIGHT/2);
 		
 		gc.fillText(points+"", 100, 100);
 	}

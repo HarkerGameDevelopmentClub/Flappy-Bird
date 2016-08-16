@@ -4,3 +4,5 @@ main/Main.java
 objects/Background.java
 objects/Bird.java
 objects/Sprite.java
+objects/TileSprite.java
+objects/SolidSprite.java
