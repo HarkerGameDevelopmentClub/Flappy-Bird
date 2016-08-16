@@ -25,9 +25,9 @@ public class Game {
 	int lastJump = -10000;
 	
 	double SPEED = 2; //  120 pixels a second
-	double GRAVITY = 0.25;
-	double JUMP_INTERVAL = 0;
-	double JUMP_SPEED = 7.5;
+	double GRAVITY = 0.3;
+	double JUMP_INTERVAL = 30;
+	double JUMP_SPEED = 8;
 	
 	boolean running = true;
 	
@@ -121,19 +121,15 @@ public class Game {
 					this.stop();
 					return;
 				}
-			}
-		}
-			
-		for(int j = 0; j < sprites.size(); j++){
-			Sprite sprite = sprites.get(j);
-			if(!(sprite instanceof SolidSprite))
-				continue;
-			for(int k = j+1; k < sprites.size(); k++){
-				Sprite other = sprites.get(k);
-				if(!(other instanceof SolidSprite))
-					continue;
-				if(((SolidSprite)sprite).isColliding((SolidSprite)other))
-					this.stop();
+
+				// I changed this bc i thought only the bird needs to be checked for collisions; let me know if I broke anything.
+				for(int k = 0; k < sprites.size(); k++){
+					Sprite other = sprites.get(k);
+					if(!(other instanceof SolidSprite) || (other instanceof Bird))
+						continue;
+					if(bird.isColliding((SolidSprite)other))
+						this.stop();
+				}
 			}
 		}
 		
@@ -173,7 +169,7 @@ public class Game {
 	private void stop(){
 		running = false;
 		
-		timeUntilRestart = 10;
+		timeUntilRestart = 3;
 		
 		new Timer().schedule(new TimerTask(){
 			@Override
@@ -189,7 +185,7 @@ public class Game {
 				}
 			}
 				
-		}, 100, 100);
+		}, 500, 500);
 	}
 	
 	public void draw(GraphicsContext gc){
@@ -203,7 +199,7 @@ public class Game {
         gc.setFont(Font.font("Comic Sans", FontWeight.BOLD, 48));
         
 		if(!running)
-			gc.fillText(""+timeUntilRestart, main.WIDTH/2-96, main.HEIGHT/2);
+			gc.fillText("Try again in "+timeUntilRestart, main.WIDTH/2-96, main.HEIGHT/2);
 		
 		gc.fillText(points+"", 100, 100);
 	}

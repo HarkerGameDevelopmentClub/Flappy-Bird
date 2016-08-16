@@ -8,7 +8,7 @@ public class SolidSprite extends Sprite {
 	
 	public boolean isColliding(SolidSprite other){
 		double[] mtv = this.getMTV(other);
-		return mtv[0] != 0 || mtv[1] != 0;
+		return mtv[0] > 20 || mtv[1] > 20; //need some leniency bc I drew the bird badly, it has a lot of empty space that would otherwise register as hitbox
 	}
 	
 	private double[] getMTV(SolidSprite other){ // Minimum Translation Vector
