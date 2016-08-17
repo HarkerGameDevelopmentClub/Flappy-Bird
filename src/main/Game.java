@@ -16,6 +16,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.image.Image;
 import listeners.KeyboardListener;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.net.URL;
 
 public class Game {
 	
@@ -24,10 +27,12 @@ public class Game {
 	KeyboardListener keyListener;
 	int lastJump = -10000;
 	
-	double SPEED = 2; //  120 pixels a second
-	double GRAVITY = 0.3;
-	double JUMP_INTERVAL = 30;
-	double JUMP_SPEED = 8;
+	double SPEED = -1; // 1 speed = 60 px/sec
+	double SPEED_MIN = 2;
+	double SPEED_MAX = 6;
+	double GRAVITY = 0.35;
+	double JUMP_INTERVAL = 40;
+	double JUMP_SPEED = 10;
 	
 	boolean running = true;
 	
@@ -37,16 +42,27 @@ public class Game {
 	List<SolidSprite> scoringPipes = new ArrayList<SolidSprite>();
 	
 	Game game;
+
+	MediaPlayer player;
 	
 	public Game(Main main){
 		this.main = main;
 		this.game = this;
+
+		// Play music
+		URL path = getClass().getResource("../images/bgm2.mp3");
+		Media music = new Media(path.toString());
+		player = new MediaPlayer(music);
+		player.setCycleCount(MediaPlayer.INDEFINITE);
+		player.setAutoPlay(true);		
 		
 		start();
 	}
 	
 	public void start(){
-		
+
+		SPEED = SPEED_MIN;
+
 		points = 0;
 		
 		keyListener = new KeyboardListener(main.getScene());
@@ -85,6 +101,8 @@ public class Game {
 	
 	public void tick(int i){ // Calls every 1/60th of a second
 		
+		SPEED = Math.min(SPEED_MAX, SPEED+0.001);		
+
 		boolean jump = false;
 		
 		if(keyListener.isKeyPressed("ESCAPE")){
