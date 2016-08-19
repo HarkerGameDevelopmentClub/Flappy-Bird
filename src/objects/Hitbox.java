@@ -1,27 +1,22 @@
 package objects;
 
-public class SolidSprite extends Sprite {
+public class Hitbox {
 	
-	public SolidSprite(double x, double y, double width, double height, String image) {
-		super(x, y, width, height, image);
+	double x, y, width, height;
+	
+	public Hitbox(double x, double y, double width, double height){
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
 	}
 	
-	public Hitbox getHitbox(){
-		return new Hitbox(x, y, width, height);
-	}
-	
-	public boolean isColliding(SolidSprite other){
-		
-		return this.getHitbox().isColliding(other.getHitbox());
-		
-	}
-	
-	/*public boolean isColliding(SolidSprite other){
+	public boolean isColliding(Hitbox other){
 		double[] mtv = this.getMTV(other);
 		return mtv[0] > 0 || mtv[1] > 0; //need some leniency bc I drew the bird badly, it has a lot of empty space that would otherwise register as hitbox
 	}
 	
-	private double[] getMTV(SolidSprite other){ // Minimum Translation Vector
+	private double[] getMTV(Hitbox other){ // Minimum Translation Vector
 		// This is a modification for rectangles of the Separating Axis Theorem Algorithm.
 		
 		double[] mtv = {0.0, 0.0};
@@ -39,6 +34,6 @@ public class SolidSprite extends Sprite {
 		
 		return mtv;
 		//return (between(t, other.t, other.b) || between(b, other.t, other.b)) && (between(l, other.l, other.r) || between(r, other.l, other.r));
-	}*/
+	}
 
 }

@@ -25,6 +25,14 @@ public class Bird extends SolidSprite {
 	}
 	
 	@Override
+	public Hitbox getHitbox(){
+		if(this.getVelocityY() > 0)
+			return new Hitbox(x + width / 20, y + height / 20 * 3, 9 * width / 10, 15 * height / 20);
+		else
+			return new Hitbox(x + width / 10, y + height / 20, 9 * width / 10, 13 * height / 20);
+	}
+	
+	@Override
 	public void draw(GraphicsContext gc){
 		
 		gc.drawImage(image, x, y, width, height);
