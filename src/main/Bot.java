@@ -1,41 +1,42 @@
 package main;
 
 import objects.Bird;
-import objects.Sprite;
-
+import objects.SolidSprite;
 
 public class Bot {
 	
 	Game game;
+	Bird bird;
 	
-	public Bot(Game game){
+	double lastJump = -10000;
+	
+	public Bot(Game game, Bird bird){
 		
 		this.game = game;
+		this.bird = bird;
 		
 	}
 	
 	public void tick(int i){
 		
-		if(game.scoringPipes.size() <= 0)
-			return;
-		
-		Bird bird = null;
-		for(Sprite sprite : game.sprites){
-			if(sprite instanceof Bird){
-				bird = (Bird)sprite;
-				break;
+		for(SolidSprite pipe : game.pipes){
+			
+			if(pipe.getYPosition() > 0 && bird.getXPosition() <= pipe.getXPosition() + pipe.getWidth()){
+				
+				double desY = pipe.getYPosition() - bird.getHitbox().height * 3 / 2;
+				
+				if(bird.getYPosition() > desY){
+					if(i - lastJump >= game.JUMP_INTERVAL){
+						lastJump = i;
+						bird.setVelocityY(game.JUMP_SPEED);
+					}
+				}
+				
+				return;
+				
 			}
+		
 		}
-		if(bird == null)
-			return;
-		
-		double desY = game.sprites.get(game.sprites.indexOf(game.scoringPipes.get(0)) + 1).getYPosition() - bird.getHitbox().height * 3 / 2;
-	//	desX = game.scoringPipes.get(0).getXPosition() + game.scoringPipes.get(0).getWidth();
-		
-		if(bird.getYPosition() > desY)
-			game.keyListener.input.add("SPACE");
-		else
-			game.keyListener.input.remove("SPACE");
 	}
 	
 }
