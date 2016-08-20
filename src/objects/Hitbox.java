@@ -2,7 +2,7 @@ package objects;
 
 public class Hitbox {
 	
-	double x, y, width, height;
+	public double x, y, width, height;
 	
 	public Hitbox(double x, double y, double width, double height){
 		this.x = x;

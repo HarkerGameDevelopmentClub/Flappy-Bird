@@ -14,7 +14,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.image.Image;
 import listeners.KeyboardListener;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -26,13 +25,17 @@ public class Game {
 	List<Sprite> sprites = new ArrayList<Sprite>();
 	KeyboardListener keyListener;
 	int lastJump = -10000;
+	int lastToggle = -10000;
 	
 	double SPEED = -1; // 1 speed = 60 px/sec
 	double SPEED_MIN = 2;
 	double SPEED_MAX = 6;
 	double GRAVITY = 0.35;
 	double JUMP_INTERVAL = 40;
+	double BOT_TOGGLE_INTERVAL = 30;
 	double JUMP_SPEED = 10;
+	
+	Bot bot = null;
 	
 	boolean running = true;
 	
@@ -50,13 +53,15 @@ public class Game {
 		this.game = this;
 
 		// Play music
-		URL path = getClass().getResource("../images/bgm2.mp3");
+		URL path = getClass().getResource("../music/bgm2.mp3");
 		Media music = new Media(path.toString());
 		player = new MediaPlayer(music);
 		player.setCycleCount(MediaPlayer.INDEFINITE);
 		player.setAutoPlay(true);		
 		
 		start();
+		
+		bot = new Bot(this);
 	}
 	
 	public void start(){
@@ -101,6 +106,9 @@ public class Game {
 	
 	public void tick(int i){ // Calls every 1/60th of a second
 		
+		if(running && bot != null)
+			bot.tick(i);
+		
 		SPEED = Math.min(SPEED_MAX, SPEED+0.001);		
 
 		boolean jump = false;
@@ -118,8 +126,20 @@ public class Game {
 				jump = true;
 			}
 		}
+		else if(keyListener.isKeyPressed("B")){
+			if(i - lastToggle >= BOT_TOGGLE_INTERVAL){
+				if(bot == null)
+					bot = new Bot(this);
+				else
+					bot = null;
+				
+				lastToggle = i;
+			}
+		}
+			
 		
-		for(Sprite sprite : sprites){
+		for(int j = 0; j < sprites.size(); j++){
+			Sprite sprite = sprites.get(j);
 			if(!(sprite instanceof Bird))
 				sprite.setXPosition(sprite.getXPosition() - SPEED);
 			else {
@@ -140,10 +160,9 @@ public class Game {
 					return;
 				}
 
-				// I changed this bc i thought only the bird needs to be checked for collisions; let me know if I broke anything.
-				for(int k = 0; k < sprites.size(); k++){
+				for(int k = j+1; k < sprites.size(); k++){
 					Sprite other = sprites.get(k);
-					if(!(other instanceof SolidSprite) || (other instanceof Bird))
+					if(!(other instanceof SolidSprite))
 						continue;
 					if(bird.isColliding((SolidSprite)other))
 						this.stop();
@@ -167,8 +186,8 @@ public class Game {
 		if(scoringPipes.size() > 0){
 			SolidSprite lastPipe = scoringPipes.get(scoringPipes.size() - 1);
 			if(lastPipe.getXPosition() + lastPipe.getWidth() + SPEED >= main.WIDTH && lastPipe.getXPosition() + lastPipe.getWidth() < main.WIDTH){
-				double height = 150 + Math.random() * 300;
-				this.addColumn(lastPipe.getXPosition() + lastPipe.getWidth() + 200 + Math.random() * 400, Math.random() * (main.HEIGHT - height), height);
+				double height = 200 + Math.random() * 300;
+				this.addColumn(lastPipe.getXPosition() + lastPipe.getWidth() + 250 + Math.random() * 400, Math.random() * (main.HEIGHT - height), height);
 			}
 		}
 		
@@ -198,6 +217,7 @@ public class Game {
 				if(timeUntilRestart <= 0){
 					this.cancel();
 					sprites.clear();
+					scoringPipes.clear();
 					game.start();
 					return;
 				}
@@ -215,11 +235,15 @@ public class Game {
 		
 		gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Comic Sans", FontWeight.BOLD, 48));
-        
+
+		gc.fillText(points+"", 100, 100);
+		
 		if(!running)
 			gc.fillText("Try again in "+timeUntilRestart, main.WIDTH/2-96, main.HEIGHT/2);
-		
-		gc.fillText(points+"", 100, 100);
+		else if(bot != null){
+			gc.setFont(Font.font("Comic Sans", FontWeight.EXTRA_LIGHT, 24));
+			gc.fillText("Press B to toggle bot mode", main.WIDTH/2-96, main.HEIGHT/2);
+		}
 	}
 
 }

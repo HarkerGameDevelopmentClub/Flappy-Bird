@@ -8,7 +8,7 @@ import javafx.scene.input.KeyEvent;
 
 public class KeyboardListener {
 	
-	HashSet<String> input = new HashSet<String>();
+	public HashSet<String> input = new HashSet<String>();
 	
 	public KeyboardListener(Scene scene) {
 		
