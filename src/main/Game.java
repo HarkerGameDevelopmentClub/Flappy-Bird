@@ -1,6 +1,8 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,40 +19,35 @@ import javafx.scene.text.FontWeight;
 import listeners.KeyboardListener;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+
 import java.net.URL;
 
 public class Game {
 	
-	Main main;
-	List<Sprite> sprites = new ArrayList<Sprite>();
-	KeyboardListener keyListener;
-	int lastJump = -10000;
-	int lastToggle = -10000;
+	public Main main;
+	public KeyboardListener keyListener;
 	
-	double SPEED = -1; // 1 speed = 60 px/sec
-	double SPEED_MIN = 2;
-	double SPEED_MAX = 6;
-	double GRAVITY = 0.35;
-	double JUMP_INTERVAL = 40;
-	double TOGGLE_INTERVAL = 30;
-	double JUMP_SPEED = 10;
+	Background background;
 	
-	double PIPE_MIN_GAP_X = 400;
-	double PIPE_MIN_GAP_Y = 300;
-	double PIPE_MAX_DEVIATION_X = 400;
-	double PIPE_MAX_DEVIATION_Y = 300;
+	public double SPEED = -1; // 1 speed = 60 px/sec
+	public double SPEED_MIN = 2;
+	public double SPEED_MAX = 12;
+	public double GRAVITY = 0.35;
+	public double JUMP_INTERVAL = 40;
+	public double TOGGLE_INTERVAL = 30;
+	public double JUMP_SPEED = 10;
 	
-	Bird leader;
+	public double PIPE_MIN_GAP_X = 300;
+	public double PIPE_MIN_GAP_Y = 250;
+	public double PIPE_MAX_DEVIATION_X = 400;
+	public double PIPE_MAX_DEVIATION_Y = 300;
 	
-	List<Bot> bots = new ArrayList<Bot>();
+	List<Bird> birds = new ArrayList<Bird>();
 	List<SolidSprite> pipes = new ArrayList<SolidSprite>();
 	
 	boolean running = true;
 	
 	int timeUntilRestart = 0;
-	int points = 0;
-	
-	List<SolidSprite> scoringPipes = new ArrayList<SolidSprite>();
 	
 	Game game;
 
@@ -67,78 +64,51 @@ public class Game {
 		player.setCycleCount(MediaPlayer.INDEFINITE);
 		player.setAutoPlay(true);		
 		
+		keyListener = new KeyboardListener(main.getScene());
+		background = new Background(0, 0, main.WIDTH, main.HEIGHT, "background.png");
+		
 		start();
 	}
+	
+	public List<SolidSprite> getPipes(){return pipes;}
 	
 	public void start(){
 
 		SPEED = SPEED_MIN;
 
-		points = 0;
-		
-		keyListener = new KeyboardListener(main.getScene());
-		
-		sprites.add(new Background(0, 0, main.WIDTH, main.HEIGHT, "background.png"));
-		
-		/* TOP BIRDS */
-		sprites.add(new Bird(100, main.HEIGHT / 2.0 - 125, 50, 50, "bird.png"));
-		sprites.add(new Bird(150, main.HEIGHT / 2.0 - 75, 50, 50, "bird.png"));
-		/* CENTRAL BIRD */
-		leader = new Bird(200, main.HEIGHT / 2.0 - 25, 50, 50, "bird.png");
-		sprites.add(leader);
-		/* BOTTOM BIRDS */
-		sprites.add(new Bird(150, main.HEIGHT / 2.0 + 25, 50, 50, "bird.png"));
-		sprites.add(new Bird(100, main.HEIGHT / 2.0 + 75, 50, 50, "bird.png"));
+		this.addBird(new Bird(200, main.HEIGHT / 2.0 - 25, 50, 50, "bird.png", "Q"));
+		this.addBird(new Bird(150, main.HEIGHT / 2.0 - 50, 50, 50, "bird.png", "R"));
+		this.addBird(new Bird(100, main.HEIGHT / 2.0 - 75, 50, 50, "bird.png", "U"));
+		this.addBird(new Bird(50, main.HEIGHT / 2.0 - 100, 50, 50, "bird.png", "P"));
 		
 		this.addColumn(1000, 300, 480);
-		this.addColumn(1500, 600, 480);
+		this.addColumn(1500, 600, 400);
 		this.addColumn(2000, 200, 450);
 		
 		running = true;
-		
-		this.setBots();
 	}
 	
-	private void addCompanions(){
-		sprites.add(new Bird(leader.getXPosition() - 100, leader.getYPosition() - 100, 50, 50, "bird.png"));
-		sprites.add(new Bird(leader.getXPosition() - 50, leader.getYPosition() - 50, 50, 50, "bird.png"));
-		
-		sprites.add(new Bird(leader.getXPosition() - 50, leader.getYPosition() + 50, 50, 50, "bird.png"));
-		sprites.add(new Bird(leader.getXPosition() - 100, leader.getYPosition() + 100, 50, 50, "bird.png"));
-		
-		if(bots.size() > 0)
-			this.setBots();
+	private void addBird(Bird bird){
+		birds.add(bird);
+		bird.setBot(new Bot(this, bird));
 	}
 	
-	private void setBots(){
-		bots.clear();
-		
-		for(Sprite sprite : sprites)
-			if(sprite instanceof Bird)
-				bots.add(new Bot(this, (Bird)sprite));
+	public void removeBird(Bird bird){
+		birds.remove(bird);
 	}
 	
 	private void addColumn(double gapX, double gapY, double gapHeight){
 		TileSprite pipe = new TileSprite(gapX, 0, 100, gapY, "green.png");
-		sprites.add(pipe);
-		scoringPipes.add(pipe);
 		pipes.add(pipe);
 		
 		pipe = new TileSprite(gapX, gapY + gapHeight , 100, main.HEIGHT - gapY - gapHeight, "green.png");
-		sprites.add(pipe);
 		pipes.add(pipe);
 	}
 	
 	public void tick(int i){ // Calls every 1/60th of a second
 		
-		if(running)
-			for(Bot bot : bots)
-				bot.tick(i);
-		
 		SPEED = Math.min(SPEED_MAX, SPEED+0.001);		
 
-		boolean jump = false;
-		
 		if(keyListener.isKeyPressed("ESCAPE")){
 			System.err.println("GAME TERMINATED");
 			System.exit(0);
@@ -146,105 +116,59 @@ public class Game {
 		}
 		else if(!running)
 			return;
-		else if(keyListener.isKeyPressed("SPACE")){
-			if(i - lastJump >= JUMP_INTERVAL){
-				lastJump = i;
-				jump = true;
-			}
+		else if(keyListener.isKeyPressed("ENTER")){
+			this.stop();
+			return;
 		}
-		else if(keyListener.isKeyPressed("B")){
-			if(i - lastToggle >= TOGGLE_INTERVAL){
-				if(bots.size() > 0)
-					bots.clear();
-				else
-					this.setBots();
-				
-				lastToggle = i;
-			}
-		}
-		else if(keyListener.isKeyPressed("V")){
-			if(i - lastToggle >= TOGGLE_INTERVAL){
-				
-				lastToggle = i;
-				
-				boolean found = false;
-				for(int j = sprites.size() - 1; j >= 0; j--){
-					Sprite sprite = sprites.get(j);
-					if(sprite instanceof Bird && !sprite.equals(leader)){
-						found = true;
-						sprites.remove(j);
-					}
-				}
-				
-				if(!found)
-					this.addCompanions();
-			}
-		}
-			
 		
-		for(int j = 0; j < sprites.size(); j++){
-			Sprite sprite = sprites.get(j);
-			if(!(sprite instanceof Bird))
-				sprite.setXPosition(sprite.getXPosition() - SPEED);
-			else {
-				Bird bird = (Bird)sprite;
-				bird.setVelocityY(bird.getVelocityY() - GRAVITY);
-				
-				if(jump)
-					bird.setVelocityY(JUMP_SPEED);
-
-				if (bird.getVelocityY() > 0)
-					bird.setImage("birdup.png");
-				else
-					bird.setImage("bird.png");				
-				bird.setYPosition(bird.getYPosition() - bird.getVelocityY());
-				
-				if(bird.getYPosition() < 0 || bird.getYPosition() > main.HEIGHT){
+		background.setXPosition(background.getXPosition() - SPEED);
+		
+		for(int j = pipes.size() - 1; j >= 0; j--){
+			SolidSprite pipe = pipes.get(j);
+			pipe.setXPosition(pipe.getXPosition() - SPEED);
+			if(pipe.getXPosition() + pipe.getWidth() <= 0)
+				pipes.remove(j);
+		}
+		
+		for(Bird bird : birds){
+			bird.handleTick(this, i);
+			
+			if(bird.getYPosition() < 0 || bird.getYPosition() + bird.getHeight() > main.HEIGHT){
+				if(this.killBird(bird)){
 					this.stop();
 					return;
 				}
-
-				for(int k = j+1; k < sprites.size(); k++){
-					Sprite other = sprites.get(k);
-					if(!(other instanceof SolidSprite) || other instanceof Bird)
-						continue;
-					if(bird.isColliding((SolidSprite)other))
-						this.stop();
-				}
 			}
-		}
-		
-		for(Sprite sprite : sprites){
-			if(sprite instanceof Bird){
-				Bird bird = (Bird) sprite;
-				for(int j = scoringPipes.size() - 1; j >= 0; j--){
-					SolidSprite pipe = scoringPipes.get(j);
-					if(bird.getXPosition() >= pipe.getXPosition() + pipe.getWidth()){
-						this.scorePoint();
-						scoringPipes.remove(j);
+			
+			for(SolidSprite pipe : pipes){
+				if(bird.isColliding(pipe)){
+					if(this.killBird(bird)){
+						this.stop();
+						return;
 					}
 				}
 			}
 		}
-		
-		if(scoringPipes.size() > 0){
-			SolidSprite lastPipe = scoringPipes.get(scoringPipes.size() - 1);
+			
+		if(pipes.size() > 0){
+			SolidSprite lastPipe = pipes.get(pipes.size() - 1);
 			if(lastPipe.getXPosition() + lastPipe.getWidth() + SPEED >= main.WIDTH && lastPipe.getXPosition() + lastPipe.getWidth() < main.WIDTH){
 				double height = PIPE_MIN_GAP_Y + Math.random() * PIPE_MAX_DEVIATION_Y;
 				this.addColumn(lastPipe.getXPosition() + lastPipe.getWidth() + PIPE_MIN_GAP_X + Math.random() * PIPE_MAX_DEVIATION_X, Math.random() * (main.HEIGHT - height), height);
 			}
 		}
-		
-		if(pipes.size() >= 2){
-			if(pipes.get(0).getXPosition() + pipes.get(0).getWidth() <= 0){
-				sprites.remove(pipes.remove(0));
-				sprites.remove(pipes.remove(0));
-			}
-		}
 	}
 	
-	private void scorePoint(){
-		points++;
+	private boolean killBird(Bird bird){
+		// True if all dead
+		
+		bird.kill();
+		
+		for(Bird berd : birds)
+			if(!berd.isDead())
+				return false;
+			
+		return true;
 	}
 	
 	private void stop(){
@@ -260,9 +184,8 @@ public class Game {
 				
 				if(timeUntilRestart <= 0){
 					this.cancel();
-					sprites.clear();
-					scoringPipes.clear();
 					pipes.clear();
+					birds.clear();
 					game.start();
 					return;
 				}
@@ -275,20 +198,19 @@ public class Game {
 		
 		gc.clearRect(0, 0, main.WIDTH, main.HEIGHT);
 		
-		for(Sprite sprite : sprites)
-			sprite.draw(gc);
+		background.draw(gc);
+		for(SolidSprite pipe : pipes)
+			pipe.draw(gc);
+		for(Bird bird : birds)
+			bird.draw(gc);
 		
 		gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Comic Sans", FontWeight.BOLD, 48));
 
-		gc.fillText(points+"", 100, 100);
+		//gc.fillText(points+"", 100, 100);
 		
 		if(!running)
 			gc.fillText("Try again in "+timeUntilRestart, main.WIDTH/2-96, main.HEIGHT/2);
-		else if(bots.size() > 0){
-			gc.setFont(Font.font("Comic Sans", FontWeight.EXTRA_LIGHT, 24));
-			gc.fillText("Press B to toggle bot mode", main.WIDTH/2-96, main.HEIGHT/2);
-		}
 	}
 
 }
