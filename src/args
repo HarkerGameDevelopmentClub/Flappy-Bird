@@ -1,8 +1,10 @@
 listeners/KeyboardListener.java
 main/Game.java
 main/Main.java
+main/Bot.java
 objects/Background.java
 objects/Bird.java
 objects/Sprite.java
 objects/TileSprite.java
 objects/SolidSprite.java
+objects/Hitbox.java
