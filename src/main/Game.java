@@ -76,10 +76,10 @@ public class Game {
 
 		SPEED = SPEED_MIN;
 
-		this.addBird(new Bird(200, main.HEIGHT / 2.0 - 25, 50, 50, "bird.png", "Q"));
-		this.addBird(new Bird(150, main.HEIGHT / 2.0 - 50, 50, 50, "bird.png", "R"));
-		this.addBird(new Bird(100, main.HEIGHT / 2.0 - 75, 50, 50, "bird.png", "U"));
-		this.addBird(new Bird(50, main.HEIGHT / 2.0 - 100, 50, 50, "bird.png", "P"));
+		this.addBird(new Bird(200, main.HEIGHT / 2.0 - 25, 50, 50, "Q", "red"));
+		this.addBird(new Bird(150, main.HEIGHT / 2.0 - 50, 50, 50, "R", "green"));
+		this.addBird(new Bird(100, main.HEIGHT / 2.0 - 75, 50, 50, "U", "gray"));
+		this.addBird(new Bird(50, main.HEIGHT / 2.0 - 100, 50, 50, "P", "blue"));
 		
 		this.addColumn(1000, 300, 480);
 		this.addColumn(1500, 600, 400);
@@ -98,10 +98,10 @@ public class Game {
 	}
 	
 	private void addColumn(double gapX, double gapY, double gapHeight){
-		TileSprite pipe = new TileSprite(gapX, 0, 100, gapY, "green.png");
+		TileSprite pipe = new TileSprite(gapX, 0, 100, gapY, "pipe.png");
 		pipes.add(pipe);
 		
-		pipe = new TileSprite(gapX, gapY + gapHeight , 100, main.HEIGHT - gapY - gapHeight, "green.png");
+		pipe = new TileSprite(gapX, gapY + gapHeight , 100, main.HEIGHT - gapY - gapHeight, "pipe.png");
 		pipes.add(pipe);
 	}
 	
