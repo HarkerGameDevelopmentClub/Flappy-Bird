@@ -16,12 +16,13 @@ public class Bird extends SolidSprite {
 	private String key = "";
 	private boolean dead = false;
 	private int points = 0;
-	private String color = "";
+	private String color = "red";
 	
-	public Bird(double x, double y, double width, double height, String image, String key){
-		super(x, y, width, height, image);
+	public Bird(double x, double y, double width, double height, String key, String color){
+		super(x, y, width, height, color+"bird.png");
 		
 		this.key = key;
+		this.color = color;
 	}
 
 	public void setVelocityX(double v){
