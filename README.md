@@ -1,2 +1,2 @@
 # Flappy-Bird
-An editable demonstration for Club Fair. Work in progress.
+An editable demonstration for Club Fair. Ready for use.
