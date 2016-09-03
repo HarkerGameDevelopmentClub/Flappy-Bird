@@ -30,8 +30,8 @@ public class Game {
 	Background background;
 	
 	public double SPEED = -1; // 1 speed = 60 px/sec
-	public double SPEED_MIN = 2;
-	public double SPEED_MAX = 12;
+	public double SPEED_MIN = 5;
+	public double SPEED_MAX = 10;
 	public double GRAVITY = 0.35;
 	public double JUMP_INTERVAL = 40;
 	public double TOGGLE_INTERVAL = 30;
@@ -107,7 +107,7 @@ public class Game {
 	
 	public void tick(int i){ // Calls every 1/60th of a second
 		
-		SPEED = Math.min(SPEED_MAX, SPEED+0.001);		
+		SPEED = Math.min(SPEED_MAX, SPEED+0.002);		
 
 		if(keyListener.isKeyPressed("ESCAPE")){
 			System.err.println("GAME TERMINATED");
