@@ -82,7 +82,7 @@ public class Game {
 		this.addBird(new Bird(50, main.HEIGHT / 2.0 - 100, 50, 50, "P", "blue"));
 		
 		this.addColumn(1000, 300, 480);
-		this.addColumn(1500, 600, 400);
+		this.addColumn(1500, 400, 400);
 		this.addColumn(2000, 200, 450);
 		
 		running = true;
